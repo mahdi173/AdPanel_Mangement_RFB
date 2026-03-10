@@ -15,7 +15,12 @@ export class TypeOrmUserRepository implements UserRepository {
   async findByEmail(email: string): Promise<User | null> {
     const userEntity = await this.repository.findOne({ where: { email } });
     if (!userEntity) return null;
-    return new User(userEntity.id, userEntity.email, userEntity.password);
+    return new User(
+      userEntity.id,
+      userEntity.email,
+      userEntity.password,
+      userEntity.permissions,
+    );
   }
 
   async save(user: User): Promise<void> {
@@ -23,6 +28,7 @@ export class TypeOrmUserRepository implements UserRepository {
       id: user.id || undefined,
       email: user.email,
       password: user.password,
+      permissions: user.permissions,
     });
     await this.repository.save(userEntity);
   }

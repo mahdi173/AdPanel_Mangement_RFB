@@ -10,4 +10,7 @@ export class UserEntity {
 
   @Column()
   password: string;
+
+  @Column({ default: '00001' })
+  permissions: string;
 }

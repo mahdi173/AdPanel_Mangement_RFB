@@ -7,6 +7,8 @@ import { AuthModule } from './contexts/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './contexts/auth/infra/typeorm/user.persistence-entity';
 import { UserSeeder } from './core/db/seeder/user.seeder';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './core/filters/not-found.filter';
 
 @Module({
   imports: [
@@ -27,6 +29,13 @@ import { UserSeeder } from './core/db/seeder/user.seeder';
     TypeOrmModule.forFeature([UserEntity]),
   ],
   controllers: [AppController],
-  providers: [AppService, UserSeeder],
+  providers: [
+    AppService,
+    UserSeeder,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}

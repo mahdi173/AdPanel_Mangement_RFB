@@ -8,7 +8,11 @@ export class JwtTokenService implements TokenService {
   constructor(private readonly jwtService: JwtService) {}
 
   async generate(user: User): Promise<string> {
-    const payload = { email: user.email, sub: user.id };
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      permissions: user.permissions,
+    };
     return this.jwtService.sign(payload);
   }
 

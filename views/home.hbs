@@ -1,0 +1,204 @@
+<div class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-white/5">
+        <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <span class="font-bold text-xl text-white">R</span>
+            </div>
+            <span class="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">RF Backend</span>
+        </div>
+
+        <div class="flex items-center space-x-6 text-sm font-medium">
+            <a href="/" class="text-indigo-400 hover:text-indigo-300 transition-colors">Home</a>
+            <a href="#" class="text-slate-400 hover:text-slate-200 transition-colors">Features</a>
+            <a href="#" class="text-slate-400 hover:text-slate-200 transition-colors">Pricing</a>
+            {{#if user}}
+                <div class="h-6 w-px bg-slate-800 mx-2"></div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-slate-300">{{user.email}}</span>
+                    <a href="/auth/logout" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg border border-slate-700 transition-all">Logout</a>
+                </div>
+            {{else}}
+                <a href="/login" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg shadow-lg shadow-indigo-600/20 transition-all">Get Started</a>
+            {{/if}}
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="flex-1 flex flex-col items-center justify-center text-center px-4 py-20 relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-indigo-600/10 blur-[120px] rounded-full -z-10"></div>
+        
+        <h1 class="text-6xl md:text-8xl font-black tracking-tight mb-6 bg-gradient-to-b from-white to-slate-500 bg-clip-text text-transparent leading-none">
+            REACH FURTHER <br> WITH ADVERTISING
+        </h1>
+        <p class="text-xl text-slate-400 max-w-2xl mb-12">
+            Manage your publicity panels with precision. Real-time coordination, role-based management, and powerful visual insights.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl mt-12">
+            <!-- Feature Cards -->
+            <div class="glass p-8 rounded-3xl text-left hover:scale-[1.02] transition-all duration-300 border-white/10">
+                <div class="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-6">
+                    <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Geo-Coordination</h3>
+                <p class="text-slate-400">Pinpoint any panel location with exact GPS coordinates.</p>
+            </div>
+            <div class="glass p-8 rounded-3xl text-left hover:scale-[1.02] transition-all duration-300 border-white/10">
+                <div class="w-12 h-12 bg-rose-500/20 rounded-2xl flex items-center justify-center mb-6">
+                    <svg class="w-6 h-6 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">RBAC Security</h3>
+                <p class="text-slate-400">Granular permissions with binary roles for ultimate control.</p>
+            </div>
+            <div class="glass p-8 rounded-3xl text-left hover:scale-[1.02] transition-all duration-300 border-white/10">
+                <div class="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center mb-6">
+                    <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V5a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Insightful Panels</h3>
+                <p class="text-slate-400">Real-time listing and contribution system for advertisers.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Panels List Section -->
+    <section class="max-w-6xl mx-auto w-full py-16 px-4">
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="text-3xl font-black tracking-tight mb-2">Publicity Panels</h2>
+                <p class="text-slate-400 italic">Available coordinates for your next campaign</p>
+            </div>
+            {{#if user}}
+                <button id="openModal" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-indigo-600/20">
+                    Add New Panel
+                </button>
+            {{/if}}
+        </div>
+
+        <div id="panelsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Panel items will be rendered here -->
+            <div class="glass p-6 rounded-2xl border-white/5 bg-slate-800/20 flex flex-col items-center justify-center h-48">
+                <p class="text-slate-500">Fetching panels...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for adding panel -->
+    <div id="panelModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="glass p-8 rounded-3xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-300">
+            <h2 class="text-2xl font-bold mb-6 text-white text-center">Add New Panel</h2>
+            <form id="addPanelForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 px-1">Panel Name</label>
+                    <input type="text" id="panelName" required placeholder="Downtown Billboard" 
+                        class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 outline-none focus:border-indigo-500 transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 px-1">Latitude</label>
+                        <input type="number" step="0.000001" id="lat" required placeholder="33.5731" 
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 outline-none focus:border-emerald-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 px-1">Longitude</label>
+                        <input type="number" step="0.000001" id="lng" required placeholder="-7.5898" 
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 outline-none focus:border-emerald-500 transition-all">
+                    </div>
+                </div>
+                <div class="flex space-x-3 mt-8">
+                    <button type="button" id="closeModal" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-xl transition-all">Cancel</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-600/20 transition-all">Save Panel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Load panels on startup
+    async function loadPanels() {
+        try {
+            const response = await fetch('/panels');
+            const allPanels = await response.json();
+            // General users only see approved panels
+            {{#if user}}
+                // If user is admin (11111), they see all? 
+                // For now let's just show approved to everyone on home
+                const panels = allPanels.filter(p => p.status === 'APPROVED');
+            {{else}}
+                const panels = allPanels.filter(p => p.status === 'APPROVED');
+            {{/if}}
+            
+            const list = document.getElementById('panelsList');
+            
+            if (panels.length === 0) {
+                list.innerHTML = `
+                    <div class="col-span-full glass p-12 rounded-3xl text-center border-white/5 opacity-50 italic">
+                        No publicity panels registered yet. Be the first!
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = panels.map(p => `
+                <div class="glass p-8 rounded-3xl hover:scale-[1.03] transition-all duration-500 border-white/10 group bg-slate-800/20">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors">
+                            <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <div class="bg-indigo-500 font-black text-[10px] px-2 py-1 rounded text-white shadow-lg shadow-indigo-500/20">LIVE</div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-white">${p.name}</h3>
+                    <div class="flex items-center space-x-2 text-slate-500 text-sm font-mono bg-slate-900/50 p-3 rounded-xl border border-white/5">
+                        <span class="text-emerald-500 font-bold">LAT:</span> ${Number(p.latitude).toFixed(4)}
+                        <span class="text-slate-700 mx-1">|</span>
+                        <span class="text-emerald-500 font-bold">LNG:</span> ${Number(p.longitude).toFixed(4)}
+                    </div>
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error('Failed to load panels', err);
+        }
+    }
+
+    loadPanels();
+
+    // Modal logic
+    const modal = document.getElementById('panelModal');
+    const openBtn = document.getElementById('openModal');
+    const closeBtn = document.getElementById('closeModal');
+
+    if (openBtn) {
+        openBtn.onclick = () => modal.classList.remove('hidden');
+    }
+    closeBtn.onclick = () => modal.classList.add('hidden');
+
+    // Panel addition
+    const form = document.getElementById('addPanelForm');
+    if (form) {
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('panelName').value;
+            const lat = parseFloat(document.getElementById('lat').value);
+            const lng = parseFloat(document.getElementById('lng').value);
+
+            try {
+                const response = await fetch('/panels', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, lat, lng })
+                });
+
+                if (response.ok) {
+                    modal.classList.add('hidden');
+                    loadPanels();
+                    form.reset();
+                } else {
+                    alert('Error saving panel. Make sure you are logged in.');
+                }
+            } catch (err) {
+                alert('Connection error');
+            }
+        };
+    }
+</script>

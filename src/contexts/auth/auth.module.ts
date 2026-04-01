@@ -15,6 +15,7 @@ import { TypeOrmUserRepository } from "./infra/typeorm-user.repository";
 import { JwtTokenService } from "./infra/jwt-token.service";
 import { JwtStrategy } from "./infra/jwt.strategy";
 import { PassportModule } from "@nestjs/passport";
+import { PanelsModule } from "../panels/panels.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PassportModule } from "@nestjs/passport";
       signOptions: { expiresIn: '1h' },
     }),
     TypeOrmModule.forFeature([UserEntity]),
+    PanelsModule,
   ],
   controllers: [AuthController, AdminController],
   providers: [

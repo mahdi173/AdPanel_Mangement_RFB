@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from "@nestjs/common";
+import { Controller, Post, Body, Get, Res } from "@nestjs/common";
 import { LoginUseCase } from "../app/usecases/login.usecase";
 import { RegisterUseCase } from "../app/usecases/register.usecase";
 
@@ -17,5 +17,11 @@ export class AuthController {
     @Post('register')
     async register(@Body() body: { email: string; pass: string }) {
         return this.registerUseCase.execute(body.email, body.pass);
+    }
+
+    @Get('logout')
+    async logout(@Res() res: any) {
+        res.clearCookie('access_token');
+        return res.redirect('/login');
     }
 }

@@ -4,8 +4,10 @@ import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './contexts/auth/auth.module';
+import { PanelsModule } from './contexts/panels/panels.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './contexts/auth/infra/typeorm/user.persistence-entity';
+import { PanelEntity } from './contexts/panels/infra/typeorm/panel.persistence-entity';
 import { UserSeeder } from './core/db/seeder/user.seeder';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './core/filters/not-found.filter';
@@ -26,7 +28,8 @@ import { HttpExceptionFilter } from './core/filters/not-found.filter';
       synchronize: true, // Auto-create tables in dev environment
     }),
     AuthModule,
-    TypeOrmModule.forFeature([UserEntity]),
+    PanelsModule,
+    TypeOrmModule.forFeature([UserEntity, PanelEntity]),
   ],
   controllers: [AppController],
   providers: [

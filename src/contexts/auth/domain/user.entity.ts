@@ -3,6 +3,10 @@ export class User {
     public readonly id: string,
     public readonly email: string,
     public readonly password: string,
-    public readonly permissions: string = '00001',
+    public permissions: string = '00001',
   ) {}
+
+  updatePermissions(newPermissions: string) {
+    this.permissions = newPermissions;
+  }
 }

@@ -1,0 +1,178 @@
+<div class="flex h-screen bg-[#0f172a] text-slate-200 overflow-hidden">
+    <!-- Admin Sidebar -->
+    <aside class="w-72 glass flex flex-col border-r border-white/5 relative z-20">
+        <div class="p-8 border-b border-white/5 flex items-center space-x-3">
+            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                <span class="font-bold text-xl text-white">A</span>
+            </div>
+            <div>
+                <h2 class="font-bold text-lg leading-none">Admin Panel</h2>
+                <span class="text-xs text-slate-500 uppercase tracking-widest font-bold">RF Backend</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-6 space-y-2 overflow-y-auto">
+            <button onclick="showSection('users')" id="btn-users" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-semibold border border-indigo-500/20 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span>User Management</span>
+            </button>
+            <button onclick="showSection('panels')" id="btn-panels" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V5a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
+                <span>Panel Validation</span>
+            </button>
+            <a href="/" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Back to Home</span>
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-white/5">
+            <a href="/auth/logout" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all font-semibold">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-12 bg-[#0d1323]">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center justify-between mb-12">
+                <div>
+                    <h1 id="section-title" class="text-4xl font-black tracking-tight text-white mb-2">User Management</h1>
+                    <p id="section-desc" class="text-slate-400 italic">Control access levels and manage system users</p>
+                </div>
+                <div class="flex items-center space-x-2 bg-slate-900 border border-slate-800 rounded-2xl p-1 shadow-2xl">
+                    <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest">Logged as:</div>
+                    <div class="bg-indigo-600/10 text-indigo-400 px-4 py-2 rounded-xl text-sm font-bold border border-indigo-500/10">{{admin.email}}</div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="section-users" class="section-content animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="glass rounded-[2rem] overflow-hidden border-white/5 shadow-2xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/50">
+                                <th class="px-8 py-6 text-xs font-bold text-slate-500 uppercase tracking-widest">User Details</th>
+                                <th class="px-8 py-6 text-xs font-bold text-slate-500 uppercase tracking-widest">Permission Level</th>
+                                <th class="px-8 py-6 text-xs font-bold text-slate-500 uppercase tracking-widest">Role Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {{#each users}}
+                            <tr class="hover:bg-white/[0.02] transition-colors group">
+                                <td class="px-8 py-6">
+                                    <div class="font-semibold text-slate-200">{{this.email}}</div>
+                                    <div class="text-[10px] font-mono text-slate-600">{{this.id}}</div>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-xs font-mono bg-slate-900 px-2 py-1 rounded border border-white/5 text-slate-400 tracking-tighter">{{this.permissions}}</span>
+                                        {{#if (eq this.permissions '11111')}}
+                                            <span class="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/10 rounded-md text-[9px] font-black uppercase tracking-widest">Admin</span>
+                                        {{else}}
+                                            <span class="px-2 py-0.5 bg-slate-800 text-slate-500 border border-slate-700 rounded-md text-[9px] font-bold uppercase tracking-widest">User</span>
+                                        {{/if}}
+                                    </div>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <select onchange="updateRole('{{this.id}}', this.value)" 
+                                        class="bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-lg focus:border-indigo-500 outline-none p-2.5 transition-all">
+                                        <option value="00001" {{#if (eq this.permissions '00001')}}selected{{/if}}>Standard User</option>
+                                        <option value="11111" {{#if (eq this.permissions '11111')}}selected{{/if}}>Administrator</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Panels Section -->
+            <div id="section-panels" class="section-content hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="glass rounded-[2rem] overflow-hidden border-white/5 shadow-2xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/50">
+                                <th class="px-8 py-6 text-xs font-bold text-slate-500 uppercase tracking-widest">Panel Info</th>
+                                <th class="px-8 py-6 text-xs font-bold text-slate-500 uppercase tracking-widest">Coordinates</th>
+                                <th class="px-8 py-6 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
+                                <th class="px-8 py-6 text-xs font-bold text-slate-500 uppercase tracking-widest">Validation</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {{#each panels}}
+                            <tr class="hover:bg-white/[0.02] transition-colors">
+                                <td class="px-8 py-6">
+                                    <div class="font-bold text-slate-200">{{this.name}}</div>
+                                    <div class="text-[10px] text-slate-600 font-mono">{{this.id}}</div>
+                                </td>
+                                <td class="px-8 py-6 font-mono text-xs text-slate-400">
+                                    {{this.latitude}}, {{this.longitude}}
+                                </td>
+                                <td class="px-8 py-6">
+                                    {{#if (eq this.status 'APPROVED')}}
+                                        <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg text-[10px] font-black uppercase tracking-tighter">Approved</span>
+                                    {{else}}
+                                        <span class="px-2 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-lg text-[10px] font-black uppercase tracking-tighter">Pending</span>
+                                    {{/if}}
+                                </td>
+                                <td class="px-8 py-6">
+                                    {{#if (eq this.status 'PENDING')}}
+                                        <button onclick="approvePanel('{{this.id}}')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black py-2 px-4 rounded-lg shadow-lg shadow-indigo-600/20 transition-all">
+                                            Approve
+                                        </button>
+                                    {{else}}
+                                        <span class="text-slate-600 text-[10px] font-bold">Validated</span>
+                                    {{/if}}
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function showSection(sectionId) {
+        document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+        document.getElementById('section-' + sectionId).classList.remove('hidden');
+        
+        // Update sidebar buttons
+        document.getElementById('btn-users').className = sectionId === 'users' 
+            ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-semibold border border-indigo-500/20 transition-all'
+            : 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all';
+        
+        document.getElementById('btn-panels').className = sectionId === 'panels'
+            ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-semibold border border-indigo-500/20 transition-all'
+            : 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all';
+            
+        // Update title/desc
+        document.getElementById('section-title').textContent = sectionId === 'users' ? 'User Management' : 'Panel Validation';
+        document.getElementById('section-desc').textContent = sectionId === 'users' ? 'Control access levels and manage system users' : 'Review and approve publicity panel requests';
+    }
+
+    async function updateRole(userId, newRole) {
+        try {
+            const response = await fetch('/admin/users/' + userId + '/role', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ permissions: newRole })
+            });
+            if (!response.ok) alert('Failed to update role');
+        } catch (err) { alert('Connection error'); }
+    }
+
+    async function approvePanel(panelId) {
+        try {
+            const response = await fetch('/admin/panels/' + panelId + '/approve', { method: 'PATCH' });
+            if (response.ok) location.reload();
+            else alert('Failed to approve');
+        } catch (err) { alert('Connection error'); }
+    }
+</script>

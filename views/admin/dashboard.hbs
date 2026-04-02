@@ -1,3 +1,6 @@
+<head>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+</head>
 <div class="flex h-screen bg-[#0f172a] text-slate-200 overflow-hidden">
     <!-- Admin Sidebar -->
     <aside class="w-72 glass flex flex-col border-r border-white/5 relative z-20">
@@ -19,6 +22,14 @@
             <button onclick="showSection('panels')" id="btn-panels" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V5a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
                 <span>Panel Validation</span>
+            </button>
+            <button onclick="showSection('groups')" id="btn-groups" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Groups Management</span>
+            </button>
+            <button onclick="showSection('chat')" id="btn-chat" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all group">
+                <svg class="w-5 h-5 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+                <span>Live Chat</span>
             </button>
             <a href="/" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -121,12 +132,27 @@
                                 </td>
                                 <td class="px-8 py-6">
                                     {{#if (eq this.status 'PENDING')}}
-                                        <button onclick="approvePanel('{{this.id}}')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black py-2 px-4 rounded-lg shadow-lg shadow-indigo-600/20 transition-all">
+                                        <button onclick="approvePanel('{{this.id}}')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black py-2 px-4 rounded-lg shadow-lg shadow-indigo-600/20 transition-all mb-2 w-full">
                                             Approve
                                         </button>
                                     {{else}}
-                                        <span class="text-slate-600 text-[10px] font-bold">Validated</span>
+                                        <span class="text-slate-600 text-[10px] font-bold block mb-2">Validated</span>
+                                        <label class="block text-[8px] uppercase tracking-widest text-slate-500 mb-1">Share Access:</label>
+                                        <div class="flex items-center space-x-1">
+                                            <select id="share-select-{{this.id}}" class="bg-slate-900 border border-slate-700 text-slate-300 text-[10px] rounded-lg focus:border-indigo-500 outline-none p-1.5 w-full">
+                                                <option value="">Select Group...</option>
+                                                {{#each ../groups}}
+                                                    <option value="{{this.id}}">{{this.name}}</option>
+                                                {{/each}}
+                                            </select>
+                                            <button onclick="sharePanel('{{this.id}}', document.getElementById('share-select-{{this.id}}').value)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1.5 rounded-lg transition-all w-8 flex justify-center shrink-0">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                                            </button>
+                                        </div>
                                     {{/if}}
+                                    <div class="mt-2 text-[10px] font-bold uppercase tracking-wider ${this.isFilled ? 'text-emerald-500' : 'text-amber-500'}">
+                                        Status: {{#if this.isFilled}}FILLED{{else}}EMPTY{{/if}}
+                                    </div>
                                 </td>
                             </tr>
                             {{/each}}
@@ -134,8 +160,84 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Groups Section -->
+            <div id="section-groups" class="section-content hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="mb-6 flex space-x-4">
+                    <input type="text" id="newGroupName" placeholder="New Group Name" class="bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2 text-slate-200 outline-none focus:border-indigo-500">
+                    <button onclick="createGroup()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 px-6 rounded-xl shadow-lg shadow-indigo-600/20 transition-all">Create Group</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{#each groups}}
+                    <div class="glass p-6 rounded-[2rem] border-white/5 shadow-2xl">
+                        <h3 class="text-lg font-bold mb-4">{{this.name}}</h3>
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase">Users</h4>
+                            {{#each this.users}}
+                            <div class="text-sm text-slate-300 bg-slate-900/50 px-3 py-2 rounded-lg">{{this.email}}</div>
+                            {{/each}}
+                            <div class="mt-4 flex space-x-2">
+                                <select id="addUserToGroup-{{this.id}}" class="flex-1 bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-lg p-2">
+                                    <option value="">Select User...</option>
+                                    {{#each ../users}}
+                                        <option value="{{this.id}}">{{this.email}}</option>
+                                    {{/each}}
+                                </select>
+                                <button onclick="addUserToGroup('{{this.id}}')" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div id="section-chat" class="section-content hidden animate-in fade-in slide-in-from-bottom-4 duration-500 h-[calc(100vh-12rem)]">
+                <div class="glass rounded-[2rem] overflow-hidden border-white/5 shadow-2xl h-full flex">
+                    <!-- Chat Sidebar (Groups) -->
+                    <div class="w-1/3 border-r border-white/5 bg-slate-900/40 flex flex-col">
+                        <div class="p-6 border-b border-white/5">
+                            <h3 class="font-bold text-lg text-white">Select Group</h3>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-4 space-y-2">
+                            {{#each groups}}
+                            <button onclick="openAdminChat('{{this.id}}', '{{this.name}}')" class="w-full text-left p-4 rounded-xl hover:bg-white/5 transition-all group-item border border-transparent focus:border-indigo-500/30" id="group-tab-{{this.id}}">
+                                <div class="font-bold text-slate-200">{{this.name}}</div>
+                                <div class="text-[10px] text-slate-500 font-mono tracking-widest uppercase mt-1">{{this.users.length}} Members</div>
+                            </button>
+                            {{/each}}
+                        </div>
+                    </div>
+                    
+                    <!-- Chat View -->
+                    <div class="flex-1 flex flex-col bg-slate-900/20 relative">
+                        <div id="chatOverlay" class="absolute inset-0 z-10 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                            <svg class="w-16 h-16 text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+                            <p class="text-slate-400 font-bold tracking-widest uppercase text-sm">Select a group to start chatting</p>
+                        </div>
+                        
+                        <div class="px-8 py-6 border-b border-white/5 bg-slate-900/40 shrink-0">
+                            <h3 id="activeChatName" class="font-bold text-white text-xl">Group Name</h3>
+                        </div>
+                        <div id="adminChatMessages" class="flex-1 overflow-y-auto p-8 space-y-6 flex flex-col scroll-smooth">
+                            <!-- JS driven -->
+                        </div>
+                        <form id="adminChatForm" class="p-6 border-t border-white/5 bg-slate-900/60 shrink-0 flex space-x-4">
+                            <input type="hidden" id="activeChatId">
+                            <input type="text" id="adminChatInput" placeholder="Type a message to the group..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-6 py-4 text-slate-200 outline-none focus:border-indigo-500 transition-all font-medium h-14">
+                            <button type="submit" class="w-14 h-14 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-600/20 transition-all">
+                                <svg class="w-6 h-6 text-white transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
+    
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-[200] space-y-4"></div>
 </div>
 
 <script>
@@ -151,10 +253,27 @@
         document.getElementById('btn-panels').className = sectionId === 'panels'
             ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-semibold border border-indigo-500/20 transition-all'
             : 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all';
+        document.getElementById('btn-groups').className = sectionId === 'groups'
+            ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-semibold border border-indigo-500/20 transition-all'
+            : 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all';
+        document.getElementById('btn-chat').className = sectionId === 'chat'
+            ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-semibold border border-indigo-500/20 transition-all'
+            : 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all';
             
         // Update title/desc
-        document.getElementById('section-title').textContent = sectionId === 'users' ? 'User Management' : 'Panel Validation';
-        document.getElementById('section-desc').textContent = sectionId === 'users' ? 'Control access levels and manage system users' : 'Review and approve publicity panel requests';
+        if (sectionId === 'users') {
+            document.getElementById('section-title').textContent = 'User Management';
+            document.getElementById('section-desc').textContent = 'Control access levels and manage system users';
+        } else if (sectionId === 'panels') {
+            document.getElementById('section-title').textContent = 'Panel Validation';
+            document.getElementById('section-desc').textContent = 'Review and approve publicity panel requests';
+        } else if (sectionId === 'groups') {
+            document.getElementById('section-title').textContent = 'Groups Management';
+            document.getElementById('section-desc').textContent = 'Manage worker groups and panel assignments';
+        } else {
+            document.getElementById('section-title').textContent = 'Live Chat Area';
+            document.getElementById('section-desc').textContent = 'Connect with your worker cohorts instantly';
+        }
     }
 
     async function updateRole(userId, newRole) {
@@ -174,5 +293,150 @@
             if (response.ok) location.reload();
             else alert('Failed to approve');
         } catch (err) { alert('Connection error'); }
+    }
+
+    async function createGroup() {
+        const name = document.getElementById('newGroupName').value;
+        if (!name) return;
+        try {
+            const response = await fetch('/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            if (response.ok) location.reload();
+            else alert('Failed to create group');
+        } catch (err) { alert('Connection error'); }
+    }
+
+    async function addUserToGroup(groupId) {
+        const userId = document.getElementById('addUserToGroup-' + groupId).value;
+        if (!userId) return;
+        try {
+            const response = await fetch('/groups/' + groupId + '/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            if (response.ok) location.reload();
+            else alert('Failed to add user to group');
+        } catch (err) { alert('Connection error'); }
+    }
+
+    async function sharePanel(panelId, groupId) {
+        if (!groupId) return;
+        try {
+            const response = await fetch('/panels/' + panelId + '/share', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ groupId })
+            });
+            if (response.ok) alert('Panel shared successfully with group!');
+            else alert('Failed to share panel');
+        } catch (err) { alert('Connection error'); }
+    }
+
+    // WebSocket logic for Admins
+    const socket = io();
+    socket.emit('joinRoom', 'admin');
+    
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        const color = type === 'success' ? 'bg-emerald-500' : 'bg-indigo-600';
+        toast.className = `glass p-4 rounded-xl border-white/10 shadow-2xl flex items-center space-x-3 transform transition-all duration-500 translate-x-[120%]`;
+        toast.innerHTML = `
+            <div class="w-8 h-8 ${color} rounded-lg flex items-center justify-center shrink-0 shadow-lg">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            </div>
+            <p class="text-sm font-bold text-slate-200">${message}</p>
+        `;
+        document.getElementById('toastContainer').appendChild(toast);
+        
+        // Trigger entrance animation
+        setTimeout(() => toast.classList.remove('translate-x-[120%]'), 10);
+        
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.add('translate-x-[120%]');
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+    }
+
+    socket.on('panelStatusUpdated', (data) => {
+        const status = data.isFilled ? 'FILLED' : 'EMPTY';
+        showToast('Worker updated a panel status to: ' + status, 'success');
+        setTimeout(() => location.reload(), 2000);
+    });
+
+    socket.on('groupChat', (msg) => {
+        const activeChatId = document.getElementById('activeChatId')?.value;
+        if (activeChatId === msg.group.id) {
+            appendAdminMessage(msg);
+        } else {
+            showToast(`New message in group chat from ${msg.senderEmail}`, 'info');
+        }
+    });
+
+    // Chat Logic
+    const adminChatMessages = document.getElementById('adminChatMessages');
+    const myEmail = '{{admin.email}}';
+
+    async function openAdminChat(groupId, groupName) {
+        document.getElementById('chatOverlay').classList.add('hidden');
+        document.getElementById('activeChatName').textContent = groupName;
+        document.getElementById('activeChatId').value = groupId;
+        
+        // Update selection UI
+        document.querySelectorAll('.group-item').forEach(el => el.classList.remove('bg-white/10'));
+        document.getElementById('group-tab-' + groupId).classList.add('bg-white/10');
+        
+        adminChatMessages.innerHTML = '<div class="text-xs text-slate-500 italic text-center py-4">Loading messages...</div>';
+        try {
+            const res = await fetch(`/groups/${groupId}/messages`);
+            const msgs = await res.json();
+            adminChatMessages.innerHTML = '';
+            msgs.forEach(appendAdminMessage);
+        } catch(e) {
+            adminChatMessages.innerHTML = '<div class="text-xs text-rose-500 text-center py-4">Failed to load chat.</div>';
+        }
+    }
+
+    function appendAdminMessage(msg) {
+        if (!adminChatMessages) return;
+        const isMine = msg.senderEmail === myEmail;
+        const div = document.createElement('div');
+        div.className = `flex flex-col max-w-[70%] ${isMine ? 'self-end items-end' : 'self-start items-start'} animate-in slide-in-from-bottom-2`;
+        
+        div.innerHTML = `
+            <span class="text-xs text-slate-500 font-bold px-2 mb-1 uppercase tracking-widest">${isMine ? 'You' : msg.senderEmail}</span>
+            <div class="${isMine ? 'bg-amber-500/20 border-amber-500/20 text-amber-50' : 'bg-slate-800 border-white/5 text-slate-200'} border px-6 py-4 rounded-3xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'} shadow-xl shadow-black/20 text-md">
+                ${msg.content}
+            </div>
+        `;
+        adminChatMessages.appendChild(div);
+        adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+    }
+
+    const adminChatForm = document.getElementById('adminChatForm');
+    if (adminChatForm) {
+        adminChatForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('adminChatInput');
+            const content = input.value.trim();
+            const groupId = document.getElementById('activeChatId').value;
+            
+            if (!content || !groupId) return;
+            
+            input.value = '';
+            try {
+                await fetch(`/groups/${groupId}/messages`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ content })
+                });
+            } catch(e) {
+                showToast('Failed to send message', 'error');
+            }
+        };
     }
 </script>

@@ -6,6 +6,8 @@ import { USER_REPOSITORY } from '../app/ports/user.repository';
 import type { UserRepository } from '../app/ports/user.repository';
 import { PANEL_REPOSITORY } from '../../panels/app/ports/panel.repository';
 import type { PanelRepository } from '../../panels/app/ports/panel.repository';
+import { GROUP_REPOSITORY } from '../../groups/app/ports/group.repository';
+import type { GroupRepository } from '../../groups/app/ports/group.repository';
 
 @Controller('admin')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -15,7 +17,9 @@ export class AdminController {
     @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepository,
     @Inject(PANEL_REPOSITORY)
-    private readonly panelRepository: PanelRepository
+    private readonly panelRepository: PanelRepository,
+    @Inject(GROUP_REPOSITORY)
+    private readonly groupRepository: GroupRepository
   ) {}
 
   @Get()
@@ -23,11 +27,13 @@ export class AdminController {
   async getAdminHome(@Req() req: any) {
     const users = await this.userRepository.findAll(); 
     const panels = await this.panelRepository.findAll();
+    const groups = await this.groupRepository.findAll();
     return { 
       title: 'Admin Dashboard',
       admin: req.user,
       users: users,
-      panels: panels
+      panels: panels,
+      groups: groups
     };
   }
 

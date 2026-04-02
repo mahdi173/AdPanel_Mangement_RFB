@@ -5,5 +5,7 @@ export class Panel {
     public readonly latitude: number,
     public readonly longitude: number,
     public status: 'PENDING' | 'APPROVED' = 'PENDING',
+    public isFilled: boolean = false,
+    public createdAt: Date = new Date(),
   ) {}
 }

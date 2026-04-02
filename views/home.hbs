@@ -1,3 +1,6 @@
+<head>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+</head>
 <div class="min-h-screen flex flex-col">
     <!-- Navbar -->
     <nav class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-white/5">
@@ -10,8 +13,11 @@
 
         <div class="flex items-center space-x-6 text-sm font-medium">
             <a href="/" class="text-indigo-400 hover:text-indigo-300 transition-colors">Home</a>
-            <a href="#" class="text-slate-400 hover:text-slate-200 transition-colors">Features</a>
-            <a href="#" class="text-slate-400 hover:text-slate-200 transition-colors">Pricing</a>
+            {{#if user}}
+                {{#if (eq user.permissions '11111')}}
+                    <a href="/admin" class="text-amber-400 hover:text-amber-300 transition-colors font-bold">Admin Dashboard</a>
+                {{/if}}
+            {{/if}}
             {{#if user}}
                 <div class="h-6 w-px bg-slate-800 mx-2"></div>
                 <div class="flex items-center space-x-4">
@@ -76,12 +82,21 @@
         </div>
 
         <div id="panelsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Panel items will be rendered here -->
-            <div class="glass p-6 rounded-2xl border-white/5 bg-slate-800/20 flex flex-col items-center justify-center h-48">
-                <p class="text-slate-500">Fetching panels...</p>
-            </div>
+            {{#if user}}
+                <div class="glass p-6 rounded-2xl border-white/5 bg-slate-800/20 flex flex-col items-center justify-center h-48">
+                    <p class="text-slate-500">Fetching panels...</p>
+                </div>
+            {{else}}
+                <div class="col-span-full glass p-12 rounded-3xl text-center border-white/5 opacity-80 italic">
+                    <h3 class="text-xl font-bold mb-2 text-white">Please Login</h3>
+                    <p class="text-slate-400">You must be connected to view and validate publicity panels.</p>
+                </div>
+            {{/if}}
         </div>
     </section>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-[200] space-y-4"></div>
 
     <!-- Modal for adding panel -->
     <div id="panelModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -112,6 +127,46 @@
             </form>
         </div>
     </div>
+
+    {{#if user}}
+    <!-- Floating Chat Button -->
+    <button id="chatToggle" class="fixed bottom-6 right-6 z-[90] w-14 h-14 bg-indigo-600 hover:bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30 transition-all hover:scale-105 group border border-indigo-400/20">
+        <svg class="w-6 h-6 text-white group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+    </button>
+
+    <!-- Chat Drawer -->
+    <div id="chatDrawer" class="fixed bottom-24 right-6 z-[90] w-96 h-[32rem] glass rounded-3xl border border-white/10 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 translate-y-8 opacity-0 pointer-events-none">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-white/5 bg-slate-900/40 relative">
+            <h3 class="font-bold text-white text-lg">Group Chat</h3>
+            <p class="text-xs text-indigo-400 font-bold uppercase tracking-widest">Live Connect</p>
+            <div class="absolute top-4 right-4">
+                <select id="chatGroupSelect" onchange="loadMessages(this.value)" class="bg-indigo-600/20 text-indigo-300 text-[10px] font-bold uppercase border border-indigo-500/20 rounded-lg px-2 py-1 outline-none appearance-none cursor-pointer">
+                    {{#if groups.length}}
+                        {{#each groups}}
+                            <option value="{{this.id}}">{{this.name}}</option>
+                        {{/each}}
+                    {{else}}
+                        <option value="">No Groups</option>
+                    {{/if}}
+                </select>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/20 scroll-smooth flex flex-col">
+            <!-- Messages pushed here -->
+        </div>
+
+        <!-- Input Area -->
+        <form id="chatForm" class="p-4 border-t border-white/5 bg-slate-900/40 flex space-x-2">
+            <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-200 outline-none focus:border-indigo-500 transition-all font-medium">
+            <button type="submit" class="w-10 h-10 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-600/20 transition-all">
+                <svg class="w-4 h-4 text-white transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+            </button>
+        </form>
+    </div>
+    {{/if}}
 </div>
 
 <script>
@@ -130,30 +185,36 @@
             {{/if}}
             
             const list = document.getElementById('panelsList');
+       
             
             if (panels.length === 0) {
                 list.innerHTML = `
                     <div class="col-span-full glass p-12 rounded-3xl text-center border-white/5 opacity-50 italic">
-                        No publicity panels registered yet. Be the first!
+                        No assigned publicity panels found.
                     </div>
                 `;
                 return;
             }
 
             list.innerHTML = panels.map(p => `
-                <div class="glass p-8 rounded-3xl hover:scale-[1.03] transition-all duration-500 border-white/10 group bg-slate-800/20">
+                <div class="glass p-8 rounded-3xl hover:scale-[1.03] transition-all duration-500 border-white/10 group bg-slate-800/20 relative">
                     <div class="flex items-start justify-between mb-6">
                         <div class="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors">
                             <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
-                        <div class="bg-indigo-500 font-black text-[10px] px-2 py-1 rounded text-white shadow-lg shadow-indigo-500/20">LIVE</div>
+                        ${p.isFilled ? '<div class="bg-emerald-500 font-black text-[10px] px-2 py-1 rounded text-white shadow-lg shadow-emerald-500/20">FILLED</div>' : '<div class="bg-amber-500 font-black text-[10px] px-2 py-1 rounded text-white shadow-lg shadow-amber-500/20">EMPTY</div>'}
                     </div>
                     <h3 class="text-xl font-bold mb-2 text-white">${p.name}</h3>
-                    <div class="flex items-center space-x-2 text-slate-500 text-sm font-mono bg-slate-900/50 p-3 rounded-xl border border-white/5">
+                    <div class="flex items-center space-x-2 text-slate-500 text-sm font-mono bg-slate-900/50 p-3 rounded-xl border border-white/5 mb-4">
                         <span class="text-emerald-500 font-bold">LAT:</span> ${Number(p.latitude).toFixed(4)}
                         <span class="text-slate-700 mx-1">|</span>
                         <span class="text-emerald-500 font-bold">LNG:</span> ${Number(p.longitude).toFixed(4)}
                     </div>
+                    {{#if user}}
+                        <button onclick="toggleFill('${p.id}', ${!p.isFilled})" class="w-full bg-slate-700 hover:bg-slate-600 font-bold py-2 rounded-lg text-sm transition-all focus:outline-none focus:ring-2 focus:ring-slate-500 border border-slate-600">
+                            Mark as ${p.isFilled ? 'Empty' : 'Filled'}
+                        </button>
+                    {{/if}}
                 </div>
             `).join('');
         } catch (err) {
@@ -161,7 +222,145 @@
         }
     }
 
+    async function toggleFill(panelId, isFilled) {
+        try {
+            const res = await fetch('/panels/' + panelId + '/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isFilled })
+            });
+            if (res.ok) loadPanels();
+            else alert('Failed to update panel status');
+        } catch (err) {
+            alert('Connection error');
+        }
+    }
+
     loadPanels();
+
+    // WebSocket logic
+    const socket = io();
+    {{#if user}}
+        socket.emit('joinRoom', 'user_{{user.id}}');
+        {{#if groups.length}}
+            {{#each groups}}
+                socket.emit('joinRoom', 'group_{{this.id}}');
+            {{/each}}
+        {{/if}}
+    {{/if}}
+    
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        const color = type === 'success' ? 'bg-emerald-500' : 'bg-indigo-600';
+        toast.className = `glass p-4 rounded-xl border-white/10 shadow-2xl flex items-center space-x-3 transform transition-all duration-500 translate-x-[120%]`;
+        toast.innerHTML = `
+            <div class="w-8 h-8 ${color} rounded-lg flex items-center justify-center shrink-0 shadow-lg">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            </div>
+            <p class="text-sm font-bold text-slate-200">${message}</p>
+        `;
+        document.getElementById('toastContainer').appendChild(toast);
+        
+        // Trigger entrance animation
+        setTimeout(() => toast.classList.remove('translate-x-[120%]'), 10);
+        
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.add('translate-x-[120%]');
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+    }
+
+    socket.on('panelShared', (data) => {
+        showToast('Admin assigned you a new panel!', 'success');
+        loadPanels();
+    });
+
+    socket.on('groupChat', (msg) => {
+        const activeGroup = document.getElementById('chatGroupSelect')?.value;
+        if (msg.group.id === activeGroup) {
+            appendMessage(msg);
+        } else {
+            showToast(`New message in another group from ${msg.senderEmail}`, 'info');
+        }
+    });
+
+    {{#if user}}
+    // Chat UI Logic
+    const chatToggle = document.getElementById('chatToggle');
+    const chatDrawer = document.getElementById('chatDrawer');
+    let chatOpen = false;
+
+    chatToggle.onclick = () => {
+        chatOpen = !chatOpen;
+        if (chatOpen) {
+            chatDrawer.classList.remove('translate-y-8', 'opacity-0', 'pointer-events-none');
+            const groupSelect = document.getElementById('chatGroupSelect');
+            if(groupSelect && groupSelect.value) {
+                loadMessages(groupSelect.value);
+            }
+        } else {
+            chatDrawer.classList.add('translate-y-8', 'opacity-0', 'pointer-events-none');
+        }
+    };
+
+    const chatMessages = document.getElementById('chatMessages');
+    const myEmail = '{{user.email}}'; // We use this to distinguish incoming vs outgoing visually
+
+    function appendMessage(msg) {
+        if (!chatMessages) return;
+        const isMine = msg.senderEmail === myEmail;
+        const div = document.createElement('div');
+        div.className = `flex flex-col max-w-[85%] ${isMine ? 'self-end items-end' : 'self-start items-start'} animate-in slide-in-from-bottom-2`;
+        
+        div.innerHTML = `
+            <span class="text-[10px] text-slate-500 font-medium px-1 mb-1">${isMine ? 'You' : msg.senderEmail}</span>
+            <div class="${isMine ? 'bg-indigo-600 text-white' : 'bg-slate-800 border border-white/5 text-slate-200'} px-4 py-2 rounded-2xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'} shadow-md text-sm">
+                ${msg.content}
+            </div>
+        `;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function loadMessages(groupId) {
+        if (!groupId || !chatMessages) return;
+        chatMessages.innerHTML = '<div class="text-xs text-slate-500 italic text-center py-4">Loading messages...</div>';
+        try {
+            const res = await fetch(`/groups/${groupId}/messages`);
+            const msgs = await res.json();
+            chatMessages.innerHTML = '';
+            msgs.forEach(appendMessage);
+        } catch(e) {
+            chatMessages.innerHTML = '<div class="text-xs text-rose-500 text-center py-4">Failed to load chat.</div>';
+        }
+    }
+
+    const chatForm = document.getElementById('chatForm');
+    if (chatForm) {
+        chatForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const content = input.value.trim();
+            const groupId = document.getElementById('chatGroupSelect').value;
+            
+            if (!content || !groupId) return;
+            
+            input.value = '';
+            // optimistically appending is fine, but server echoes it back via socket!
+            // Wait, if it echoes back, we might see it twice if we append manually.
+            try {
+                await fetch(`/groups/${groupId}/messages`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ content })
+                });
+            } catch(e) {
+                showToast('Failed to send message', 'error');
+            }
+        };
+    }
+    {{/if}}
 
     // Modal logic
     const modal = document.getElementById('panelModal');

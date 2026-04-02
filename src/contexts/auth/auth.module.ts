@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { LoginUseCase } from "./app/usecases/login.usecase";
 import { RegisterUseCase } from "./app/usecases/register.usecase";
@@ -16,6 +16,7 @@ import { JwtTokenService } from "./infra/jwt-token.service";
 import { JwtStrategy } from "./infra/jwt.strategy";
 import { PassportModule } from "@nestjs/passport";
 import { PanelsModule } from "../panels/panels.module";
+import { GroupsModule } from "../groups/groups.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PanelsModule } from "../panels/panels.module";
     }),
     TypeOrmModule.forFeature([UserEntity]),
     PanelsModule,
+    forwardRef(() => GroupsModule),
   ],
   controllers: [AuthController, AdminController],
   providers: [

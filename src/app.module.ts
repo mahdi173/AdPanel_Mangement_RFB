@@ -11,6 +11,10 @@ import { PanelEntity } from './contexts/panels/infra/typeorm/panel.persistence-e
 import { UserSeeder } from './core/db/seeder/user.seeder';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './core/filters/not-found.filter';
+import { GroupsModule } from './contexts/groups/groups.module';
+import { NotificationsModule } from './core/notifications/notifications.module';
+import { GroupEntity } from './contexts/groups/infra/typeorm/group.persistence-entity';
+import { MessageEntity } from './contexts/groups/infra/typeorm/message.persistence-entity';
 
 @Module({
   imports: [
@@ -29,7 +33,9 @@ import { HttpExceptionFilter } from './core/filters/not-found.filter';
     }),
     AuthModule,
     PanelsModule,
-    TypeOrmModule.forFeature([UserEntity, PanelEntity]),
+    GroupsModule,
+    NotificationsModule,
+    TypeOrmModule.forFeature([UserEntity, PanelEntity, GroupEntity, MessageEntity]),
   ],
   controllers: [AppController],
   providers: [

@@ -3,26 +3,42 @@ import { AppService } from './app.service';
 import { OptionalJwtAuthGuard } from './contexts/auth/api/optional-jwt-auth.guard';
 import { PANEL_REPOSITORY } from './contexts/panels/app/ports/panel.repository';
 import type { PanelRepository } from './contexts/panels/app/ports/panel.repository';
+import { GROUP_REPOSITORY } from './contexts/groups/app/ports/group.repository';
+import type { GroupRepository } from './contexts/groups/app/ports/group.repository';
+import { Panel } from './contexts/panels/domain/panel.entity';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     @Inject(PANEL_REPOSITORY)
-    private readonly panelRepository: PanelRepository
+    private readonly panelRepository: PanelRepository,
+    @Inject(GROUP_REPOSITORY)
+    private readonly groupRepository: GroupRepository
   ) {}
 
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   @Render('home')
   async getHome(@Req() req: any) {
-    // Note: req.user will be populated only if we use a guard that allows optional auth
-    // For now, let's just fetch panels
-    const panels = await this.panelRepository.findAll();
+    let panels: Panel[] = [];
+    let myGroups: any[] = [];
+    
+    if (req.user) {
+      if (req.user.permissions === '11111') {
+        panels = await this.panelRepository.findAll();
+      } else {
+        panels = await this.panelRepository.getRecentOccupied(10);
+      }
+      
+      const allGroups = await this.groupRepository.findAll();
+      myGroups = allGroups.filter(g => g.users && g.users.some(u => u.id === req.user.id));
+    }
     return {
       title: 'Home',
       user: req.user,
-      panels: panels
+      panels: panels,
+      groups: myGroups
     };
   }
 

@@ -4,6 +4,9 @@ export class User {
     public readonly email: string,
     public readonly password: string,
     public permissions: string = '00001',
+    public stripeCustomerId?: string,
+    public subscriptionId?: string,
+    public subscriptionStatus?: string,
   ) {}
 
   updatePermissions(newPermissions: string) {

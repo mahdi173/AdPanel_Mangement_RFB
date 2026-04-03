@@ -15,6 +15,15 @@ export class UserEntity {
   @Column({ default: '00001' })
   permissions: string;
 
+  @Column({ nullable: true, name: 'stripe_customer_id' })
+  stripeCustomerId: string;
+
+  @Column({ nullable: true, name: 'subscription_id' })
+  subscriptionId: string;
+
+  @Column({ nullable: true, name: 'subscription_status' })
+  subscriptionStatus: string;
+
   @ManyToMany(() => GroupEntity, group => group.users)
   groups: GroupEntity[];
 }

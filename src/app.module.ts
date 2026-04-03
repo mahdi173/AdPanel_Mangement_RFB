@@ -15,6 +15,7 @@ import { GroupsModule } from './contexts/groups/groups.module';
 import { NotificationsModule } from './core/notifications/notifications.module';
 import { GroupEntity } from './contexts/groups/infra/typeorm/group.persistence-entity';
 import { MessageEntity } from './contexts/groups/infra/typeorm/message.persistence-entity';
+import { StripeModule } from './contexts/payment/infra/payment.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { MessageEntity } from './contexts/groups/infra/typeorm/message.persisten
     GroupsModule,
     NotificationsModule,
     TypeOrmModule.forFeature([UserEntity, PanelEntity, GroupEntity, MessageEntity]),
+    StripeModule.forRootAsync(),
   ],
   controllers: [AppController],
   providers: [

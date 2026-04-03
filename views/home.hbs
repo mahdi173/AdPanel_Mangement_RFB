@@ -66,6 +66,69 @@
             </div>
         </div>
     </main>
+    
+    <!-- Pricing Section -->
+    <section id="pricing" class="max-w-6xl mx-auto w-full py-20 px-4 relative">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-black tracking-tight mb-4">Strategic Plans</h2>
+            <p class="text-slate-400 italic">Scale your advertising reach with our premium templates</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {{#each plans}}
+                <div class="glass p-8 rounded-[2.5rem] border-white/10 flex flex-col relative group hover:scale-[1.02] transition-all duration-500 {{#if (eq this.name 'AdTemplates')}}ring-2 ring-indigo-500 shadow-2xl shadow-indigo-500/20{{/if}}">
+                    {{#if (eq this.name 'AdTemplates')}}
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black tracking-widest px-4 py-1 rounded-full shadow-lg">RECOMMENDED</div>
+                    {{/if}}
+                    
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-white mb-2">{{this.name}}</h3>
+                        <p class="text-slate-400 text-sm h-12 overflow-hidden">{{this.description}}</p>
+                    </div>
+
+                    <div class="mb-10">
+                        <div class="flex items-baseline space-x-1">
+                            <span class="text-4xl font-black text-white">${{this.amount}}</span>
+                            <span class="text-slate-500 font-medium lowercase">/{{this.interval}}</span>
+                        </div>
+                    </div>
+
+                    <ul class="space-y-4 mb-10 text-sm text-slate-400 flex-1">
+                        <li class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                            <span>Full AdTemplates access</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                            <span>Priority coordination</span>
+                        </li>
+                    </ul>
+
+                    {{#if ../user}}
+                        {{#if (eq ../user.permissions '00001')}}
+                            {{#if (eq ../user.subscriptionStatus 'active')}}
+                                <div class="w-full bg-slate-800 text-slate-500 font-bold py-4 rounded-2xl text-center border border-white/5 opacity-50 cursor-not-allowed">
+                                    Your current Plan
+                                </div>
+                             {{else}}
+                                <button onclick="handleGetPlan('{{this.priceId}}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-600/20 transition-all active:scale-95">
+                                    Get Started Now
+                                </button>
+                            {{/if}}
+                        {{else}}
+                            <div class="w-full bg-slate-800 text-slate-500 font-bold py-4 rounded-2xl text-center border border-white/5 opacity-50 cursor-not-allowed">
+                                Admin Access
+                            </div>
+                        {{/if}}
+                    {{else}}
+                        <a href="/login" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl text-center transition-all">
+                            Login to Subscribe
+                        </a>
+                    {{/if}}
+                </div>
+            {{/each}}
+        </div>
+    </section>
 
     <!-- Panels List Section -->
     <section class="max-w-6xl mx-auto w-full py-16 px-4">
@@ -399,5 +462,24 @@
                 alert('Connection error');
             }
         };
+    }
+
+    async function handleGetPlan(priceId) {
+        if (!priceId) return;
+        try {
+            const response = await fetch('/stripe/create-checkout-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: '{{user.id}}', priceId })
+            });
+            const session = await response.json();
+            if (session.url) {
+                window.location.href = session.url;
+            } else {
+                showToast('Failed to start checkout', 'error');
+            }
+        } catch (err) {
+            showToast('Connection error', 'error');
+        }
     }
 </script>

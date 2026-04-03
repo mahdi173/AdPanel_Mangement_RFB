@@ -47,6 +47,6 @@ import { GroupsModule } from "../groups/groups.module";
       useClass: BcryptPasswordService,
     },
   ],
-  exports: [LoginUseCase, RegisterUseCase, PASSWORD_SERVICE],
+  exports: [LoginUseCase, RegisterUseCase, PASSWORD_SERVICE, USER_REPOSITORY],
 })
 export class AuthModule {}

@@ -34,6 +34,9 @@ export class TypeOrmUserRepository implements UserRepository {
       email: user.email,
       password: user.password,
       permissions: user.permissions,
+      stripeCustomerId: user.stripeCustomerId,
+      subscriptionId: user.subscriptionId,
+      subscriptionStatus: user.subscriptionStatus,
     });
     await this.repository.save(userEntity);
   }
@@ -45,6 +48,9 @@ export class TypeOrmUserRepository implements UserRepository {
       entity.email,
       entity.password,
       entity.permissions,
+      entity.stripeCustomerId,
+      entity.subscriptionId,
+      entity.subscriptionStatus,
     );
   }
 }

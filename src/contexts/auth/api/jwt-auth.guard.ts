@@ -1,13 +1,9 @@
-import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { TOKEN_SERVICE } from '../app/ports/token.service';
 import type { TokenService } from '../app/ports/token.service';
 
-/**
- * Optional guard: passes through without throwing even if no user is attached.
- * If a valid access token is present, it attaches req.user.
- */
 @Injectable()
-export class OptionalJwtAuthGuard implements CanActivate {
+export class JwtAuthGuard implements CanActivate {
   constructor(
     @Inject(TOKEN_SERVICE) private readonly tokenService: TokenService,
   ) {}
@@ -15,24 +11,20 @@ export class OptionalJwtAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractToken(request);
-    if (!token) return true;
+    if (!token) throw new UnauthorizedException('Authentication required');
 
-    try {
-      const payload = await this.tokenService.verifyAccessToken(token);
-      request.user = {
-        id: payload.sub,
-        email: payload.email,
-        permissions: payload.permissions,
-        token: {
-          sub: payload.sub,
-          typ: payload.typ,
-          iat: payload.iat,
-          exp: payload.exp,
-        },
-      };
-    } catch {
-      // Ignore invalid/expired token for optional routes
-    }
+    const payload = await this.tokenService.verifyAccessToken(token);
+    request.user = {
+      id: payload.sub,
+      email: payload.email,
+      permissions: payload.permissions,
+      token: {
+        sub: payload.sub,
+        typ: payload.typ,
+        iat: payload.iat,
+        exp: payload.exp,
+      },
+    };
     return true;
   }
 
@@ -42,6 +34,7 @@ export class OptionalJwtAuthGuard implements CanActivate {
       return authHeader.slice('Bearer '.length).trim();
     }
 
+    // Support cookie-based access_token (works with cookie-parser, and a naive fallback)
     const cookieToken = req?.cookies?.access_token;
     if (typeof cookieToken === 'string' && cookieToken.length > 0) return cookieToken;
 

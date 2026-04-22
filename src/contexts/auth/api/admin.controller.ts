@@ -1,5 +1,5 @@
 import { Controller, Get, UseGuards, Render, Req, Inject, Patch, Param, Body, NotFoundException } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles.guard';
 import { Roles } from './roles.decorator';
 import { USER_REPOSITORY } from '../app/ports/user.repository';
@@ -8,9 +8,10 @@ import { PANEL_REPOSITORY } from '../../panels/app/ports/panel.repository';
 import type { PanelRepository } from '../../panels/app/ports/panel.repository';
 import { GROUP_REPOSITORY } from '../../groups/app/ports/group.repository';
 import type { GroupRepository } from '../../groups/app/ports/group.repository';
+import { requireRequestUser } from './request-user';
 
 @Controller('admin')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('11111') 
 export class AdminController {
   constructor(
@@ -25,12 +26,13 @@ export class AdminController {
   @Get()
   @Render('admin/dashboard')
   async getAdminHome(@Req() req: any) {
+    const admin = requireRequestUser(req);
     const users = await this.userRepository.findAll(); 
     const panels = await this.panelRepository.findAll();
     const groups = await this.groupRepository.findAll();
     return { 
       title: 'Admin Dashboard',
-      admin: req.user,
+      admin,
       users: users,
       panels: panels,
       groups: groups

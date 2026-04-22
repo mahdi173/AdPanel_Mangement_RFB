@@ -1,8 +1,19 @@
 import { User } from "../../domain/user.entity"
 
+export interface TokenPayload {
+  sub: string;
+  email: string;
+  permissions?: string;
+  typ?: 'access' | 'refresh';
+  exp?: number;
+  iat?: number;
+}
+
 export interface TokenService {
-  generate(user: User): Promise<string>;
-  verify(token: string): Promise<any>;
+  generateAccessToken(user: User): Promise<string>;
+  generateRefreshToken(user: User): Promise<string>;
+  verifyAccessToken(token: string): Promise<TokenPayload>;
+  verifyRefreshToken(token: string): Promise<TokenPayload>;
 }
 
 export const TOKEN_SERVICE = 'TOKEN_SERVICE';

@@ -1,13 +1,14 @@
 import { Controller, Get, Post, Body, UseGuards, Inject, Param, Req, Logger } from '@nestjs/common';
 import { OptimisticLockVersionMismatchError } from 'typeorm';
 import { OptionalJwtAuthGuard } from '../../auth/api/optional-jwt-auth.guard';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../../auth/api/jwt-auth.guard';
 import { PANEL_REPOSITORY } from '../app/ports/panel.repository';
 import type { PanelRepository } from '../app/ports/panel.repository';
 import { Panel } from '../domain/panel.entity';
 import { NotificationsService } from '../../../core/notifications/notifications.service';
 import { RolesGuard } from '../../auth/api/roles.guard';
 import { Roles } from '../../auth/api/roles.decorator';
+import { getRequestUser } from '../../auth/api/request-user';
 
 @Controller('panels')
 export class PanelController {
@@ -22,15 +23,16 @@ export class PanelController {
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   async getAll(@Req() req: any) {
-    if (!req.user) return [];
-    if (req.user.permissions === '11111') {
+    const user = getRequestUser(req);
+    if (!user) return [];
+    if (user.permissions === '11111') {
       return this.panelRepository.findAll();
     }
     return this.panelRepository.getRecentOccupied(10);
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   async create(@Body() body: { name: string; lat: number; lng: number }) {
     const panel = new Panel(null, body.name, body.lat, body.lng);
     await this.panelRepository.save(panel);
@@ -38,7 +40,7 @@ export class PanelController {
   }
 
   @Post(':id/share')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('11111') // Admin only
   async sharePanel(@Body('groupId') groupId: string, @Param('id') id: string) {
     await this.panelRepository.assignPanelToGroup(id, groupId);
@@ -47,7 +49,7 @@ export class PanelController {
   }
 
   @Post(':id/status')
-  @UseGuards(AuthGuard('jwt')) 
+  @UseGuards(JwtAuthGuard)
   async updateStatus(@Param('id') id: string, @Body('isFilled') isFilled: boolean) {
     const panel = await this.panelRepository.findById(id);
     if (!panel) return { success: false, error: 'Panel not found' };

@@ -25,12 +25,16 @@ export class LoginUseCase {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const token = await this.tokenService.generate(user);
+        const accessToken = await this.tokenService.generateAccessToken(user);
+        const refreshToken = await this.tokenService.generateRefreshToken(user);
+        
         return {
-            access_token: token,
+            access_token: accessToken,
+            refresh_token: refreshToken,
             user: {
                 id: user.id,
-                email: user.email
+                email: user.email,
+                permissions: user.permissions
             }
         };
     }

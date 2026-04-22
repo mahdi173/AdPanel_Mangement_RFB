@@ -20,8 +20,7 @@ export class PanelEntity {
   @Column({ default: false })
   isFilled: boolean;
 
-  @Column({ default: 1 })
-  @VersionColumn() // Optimistic lock
+  @VersionColumn({ default: 1 }) // Optimistic lock
   version: number;
 
   @CreateDateColumn()

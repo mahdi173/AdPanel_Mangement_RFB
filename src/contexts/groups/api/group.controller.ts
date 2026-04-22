@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Param, UseGuards, Req } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../../auth/api/jwt-auth.guard';
 import { GROUP_REPOSITORY } from '../app/ports/group.repository';
 import type { GroupRepository } from '../app/ports/group.repository';
 import { Group } from '../domain/group.entity';
@@ -11,9 +11,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MessageEntity } from '../infra/typeorm/message.persistence-entity';
 import { NotificationsService } from '../../../core/notifications/notifications.service';
+import { requireRequestUser } from '../../auth/api/request-user';
 
 @Controller('groups')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class GroupController {
   constructor(
     @Inject(GROUP_REPOSITORY)
@@ -54,7 +55,7 @@ export class GroupController {
 
   @Post(':id/messages')
   async sendMessage(@Param('id') groupId: string, @Body() body: { content: string, clientMessageId?: string }, @Req() req: any) {
-    const senderEmail = req.user.email;
+    const senderEmail = requireRequestUser(req).email;
     const clientMessageId = body.clientMessageId;
 
     if (clientMessageId) {

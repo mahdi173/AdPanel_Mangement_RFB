@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, VersionColumn } from 'typeorm';
 
 @Entity('panels')
 export class PanelEntity {
@@ -19,6 +19,10 @@ export class PanelEntity {
 
   @Column({ default: false })
   isFilled: boolean;
+
+  @Column({ default: 1 })
+  @VersionColumn() // Optimistic lock
+  version: number;
 
   @CreateDateColumn()
   createdAt: Date;

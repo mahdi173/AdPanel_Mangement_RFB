@@ -76,18 +76,25 @@ export class TypeOrmPanelRepository implements PanelRepository {
   }
 
   async assignPanelToGroup(panelId: string, groupId: string): Promise<void> {
-    const panel = await this.repository.findOne({ where: { id: panelId } });
-    const group = await this.groupRepository.findOne({ where: { id: groupId } });
-    
-    if (panel && group) {
-      const existing = await this.assignmentRepository.findOne({ where: { panel: { id: panelId }, group: { id: groupId } } });
-      if (!existing) {
-        const assignment = this.assignmentRepository.create({
-          panel,
-          group,
+    await this.repository.manager.transaction(async (transactionalEntityManager) => {
+      const panel = await transactionalEntityManager.findOne(PanelEntity, { 
+        where: { id: panelId },
+        lock: { mode: 'pessimistic_write' }
+      });
+      const group = await transactionalEntityManager.findOne(GroupEntity, { where: { id: groupId } });
+      
+      if (panel && group) {
+        const existing = await transactionalEntityManager.findOne(PanelAssignmentEntity, { 
+          where: { panel: { id: panelId }, group: { id: groupId } } 
         });
-        await this.assignmentRepository.save(assignment);
+        if (!existing) {
+          const assignment = transactionalEntityManager.create(PanelAssignmentEntity, {
+            panel,
+            group,
+          });
+          await transactionalEntityManager.save(assignment);
+        }
       }
-    }
+    });
   }
 }

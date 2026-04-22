@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger, RawBodyRequest } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../../../auth/infra/typeorm/user.persistence-entity';
+import { ProcessedEventEntity } from '../../infra/typeorm/processed-event.persistence-entity';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
@@ -17,6 +18,8 @@ export class StripeService {
     private readonly webhookSecret: string,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(ProcessedEventEntity)
+    private readonly eventRepository: Repository<ProcessedEventEntity>,
     private readonly configService: ConfigService,
   ) {
     this.stripe = new Stripe(this.apiKey, {
@@ -244,7 +247,16 @@ export class StripeService {
       throw new Error('Webhook Signature Verification Failed');
     }
 
-    this.logger.log(`Processing Stripe event: ${event.type}`);
+    this.logger.log(`Processing Stripe event: ${event.type} (${event.id})`);
+
+    //check if we already processed this event
+    const alreadyProcessed = await this.eventRepository.findOneBy({ id: event.id });
+    if (alreadyProcessed) {
+      this.logger.log(`Event ${event.id} already processed, skipping.`);
+      return;
+    }
+
+    await this.eventRepository.save({ id: event.id });
 
     switch (event.type) {
       case 'checkout.session.completed':

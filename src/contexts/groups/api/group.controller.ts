@@ -53,12 +53,21 @@ export class GroupController {
   }
 
   @Post(':id/messages')
-  async sendMessage(@Param('id') groupId: string, @Body() body: { content: string }, @Req() req: any) {
+  async sendMessage(@Param('id') groupId: string, @Body() body: { content: string, clientMessageId?: string }, @Req() req: any) {
     const senderEmail = req.user.email;
+    const clientMessageId = body.clientMessageId;
+
+    if (clientMessageId) {
+      const existing = await this.messageRepository.findOneBy({ clientMessageId });
+      if (existing) {
+        return { success: true, message: existing, duplicated: true };
+      }
+    }
     
     const message = this.messageRepository.create({
       content: body.content,
       senderEmail: senderEmail,
+      clientMessageId: clientMessageId,
       group: { id: groupId } as any
     });
     await this.messageRepository.save(message);

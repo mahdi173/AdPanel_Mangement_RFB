@@ -292,10 +292,18 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isFilled })
             });
-            if (res.ok) loadPanels();
-            else alert('Failed to update panel status');
+            const data = await res.json();
+            
+            if (res.ok && data.success) {
+                loadPanels();
+            } else if (data.conflict) {
+                showToast(data.error || 'Conflit de modification. Le panneau a été mis à jour par quelqu\'un d\'autre.', 'error');
+                loadPanels(); // Refresh to get the latest version
+            } else {
+                showToast(data.error || 'Failed to update panel status', 'error');
+            }
         } catch (err) {
-            alert('Connection error');
+            showToast('Connection error', 'error');
         }
     }
 
@@ -409,14 +417,14 @@
             
             if (!content || !groupId) return;
             
+            const clientMessageId = crypto.randomUUID ? crypto.randomUUID() : (Math.random().toString(36).substring(2) + Date.now().toString(36));
             input.value = '';
-            // optimistically appending is fine, but server echoes it back via socket!
-            // Wait, if it echoes back, we might see it twice if we append manually.
+            
             try {
                 await fetch(`/groups/${groupId}/messages`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ content })
+                    body: JSON.stringify({ content, clientMessageId })
                 });
             } catch(e) {
                 showToast('Failed to send message', 'error');

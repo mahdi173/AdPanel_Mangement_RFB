@@ -4,6 +4,7 @@ import { StripeController } from '../api/payment.controller';
 import { StripeService } from '../app/service/payment.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../../auth/infra/typeorm/user.persistence-entity';
+import { ProcessedEventEntity } from './typeorm/processed-event.persistence-entity';
 
 @Module({})
 export class StripeModule {
@@ -12,7 +13,7 @@ export class StripeModule {
       module: StripeModule,
       controllers: [StripeController],
       imports: [
-        TypeOrmModule.forFeature([UserEntity]),
+        TypeOrmModule.forFeature([UserEntity, ProcessedEventEntity]),
         ConfigModule.forRoot(),
       ],
       providers: [

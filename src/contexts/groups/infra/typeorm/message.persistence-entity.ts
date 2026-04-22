@@ -12,6 +12,9 @@ export class MessageEntity {
   @Column()
   senderEmail: string;
 
+  @Column({ name: 'client_message_id', nullable: true, unique: true })
+  clientMessageId: string;
+
   @ManyToOne(() => GroupEntity, group => group.messages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'group_id' })
   group: GroupEntity;

@@ -34,26 +34,30 @@
 
 ### 1. Concurrent Panel Status Update
 
-**Description** : Cette condition survient lorsque deux utilisateurs ou plus tentent de modifier l'état `isFilled` d'un même AdPanel au même moment.
+**Description** : Cette condition survient lorsque deux utilisateurs tentent de modifier l'état `isFilled` d'un même AdPanel au même moment.
 
-- **Détails** : L'application récupère l'objet `Panel` depuis la base de données, modifie sa propriété en mémoire, puis sauvegarde l'objet entier. Si deux requêtes entrelacent ces étapes, la dernière sauvegarde écrasera la première, ignorant potentiellement une mise à jour intermédiaire.
+- **Détails** : L'application récupère l'objet `Panel`, le modifie en mémoire, puis le sauvegarde. Si deux demandes se mélangent, la dernière demande prendra le dessus sur la première.
+- **Solution** : L'ajout de l'**Optimistic Locking**.
 
 ### 2. Stripe Webhook
 
-**Description** : Un délai de synchronisation existe entre la confirmation de paiement côté Stripe et la mise à jour du `subscriptionStatus` via le **Webhook**.
+**Description** : Stripe peut envoyer le même événement plusieurs fois (retry logic), ou un délai de synchronisation peut exister.
 
-- **Détails** : Si un utilisateur termine son paiement et rafraîchit immédiatement la page d'accueil avant que le serveur n'ait reçu et traité l'événement `checkout.session.completed`, il verra toujours son bouton "Subscribe" au lieu de son statut actif, créant une confusion sur l'état réel de son abonnement.
+- **Détails** : Si le même événement est traité deux fois, cela peut corrompre les données utilisateur.
+- **Solution** : Utilisation d'une table pour stocker les IDs d'événements Stripe et garantir qu'un événement n'est traité qu'une seule fois.
 
-### 3. Chat
+### 3. Chat Duplicte Message
 
-**Description** : L'envoi multiple de messages causé par des clics rapides sur le bouton "Send".
+**Description** : L'envoi multiple de messages causé par des clics rapides (Double-Click Race).
 
-- **Détails** : Chaque clic génère une requête `POST` distincte vers `/groups/:id/messages`. Si ces requêtes sont traitées, elles créeront des entrées dupliquées avec des IDs différents dans la table `messages`.
+- **Détails** : Chaque clic génère une requête `POST`. Sans protection, cela crée des messages identiques en base de données.
+- **Solution** : Le client génère un `UUID` unique pour chaque message. Le serveur refuse toute insertion si l'UUID a déjà été reçu.
 
-### 4. Group Assignment
+### 4. Group Assignment Conflict
 
 **Description** : Conflit lors de l'assignation d'un panneau à un groupe par plusieurs administrateurs.
 
-- **Détails** : Lorsque deux administrateurs tentent d'assigner le même panneau à des groupes différents (ou au même groupe) simultanément, des erreurs de contraintes d'unicité ou des états incohérents dans la table de jointure peuvent survenir selon la stratégie de **Locking** utilisée par l'ORM.
+- **Détails** : Des erreurs de cohérence peuvent survenir si deux admins modifient les relations en même temps.
+- **Solution** : Utilisation de `pessimistic_write` et de transactions SQL pour verrouiller la ligne du panneau pendant l'assignation.
 
 ---

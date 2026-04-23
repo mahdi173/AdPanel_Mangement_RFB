@@ -1,4 +1,4 @@
-import { Inject, Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { TOKEN_SERVICE } from '../app/ports/token.service';
 import type { TokenService } from '../app/ports/token.service';
@@ -25,7 +25,12 @@ export class AuthMiddleware implements NestMiddleware {
         email: payload.email,
         permissions: payload.permissions,
         token: {
+          id: payload.id,
           sub: payload.sub,
+          familyId: payload.familyId,
+          parentId: payload.parentId,
+          isRevoked: payload.isRevoked,
+          version: payload.version,
           typ: payload.typ,
           iat: payload.iat,
           exp: payload.exp,

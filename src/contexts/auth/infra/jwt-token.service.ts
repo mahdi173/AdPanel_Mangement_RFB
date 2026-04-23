@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { TokenPayload, TokenService } from '../app/ports/token.service';
+import { RefreshTokenClaims, TokenPayload, TokenService } from '../app/ports/token.service';
 import { User } from '../domain/user.entity';
 import * as crypto from 'crypto';
 
@@ -9,11 +9,16 @@ export class JwtTokenService implements TokenService {
   private readonly accessTokenExp = 3600; // 1 hour in seconds
   private readonly refreshTokenExp = 604800; // 7 days in seconds
 
-  async generateAccessToken(user: User): Promise<string> {
+  async generateAccessToken(user: User, claims?: Partial<RefreshTokenClaims>): Promise<string> {
     const payload: TokenPayload = {
       sub: user.id,
+      id: claims?.id ?? crypto.randomUUID(),
       email: user.email,
       permissions: user.permissions,
+      familyId: claims?.familyId,
+      parentId: claims?.parentId,
+      isRevoked: claims?.isRevoked ?? false,
+      version: claims?.version ?? 1,
       typ: 'access',
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + this.accessTokenExp,
@@ -21,10 +26,15 @@ export class JwtTokenService implements TokenService {
     return this.sign(payload);
   }
 
-  async generateRefreshToken(user: User): Promise<string> {
+  async generateRefreshToken(user: User, claims: RefreshTokenClaims): Promise<string> {
     const payload: TokenPayload = {
       sub: user.id,
+      id: claims.id,
       email: user.email,
+      familyId: claims.familyId,
+      parentId: claims.parentId,
+      isRevoked: claims.isRevoked,
+      version: claims.version,
       typ: 'refresh',
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + this.refreshTokenExp,

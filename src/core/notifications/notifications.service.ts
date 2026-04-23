@@ -20,4 +20,8 @@ export class NotificationsService {
     this.gateway.sendNotificationToRoom(`group_${groupId}`, 'groupChat', message);
     this.gateway.sendNotificationToRoom('admin', 'groupChat', message);
   }
+
+  notifySecurityAlert(payload: { level: 'middle' | 'high'; userId: string; reasons: string[] }) {
+    this.gateway.sendNotificationToRoom('admin', 'securityAlert', payload);
+  }
 }

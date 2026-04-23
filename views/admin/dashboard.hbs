@@ -31,6 +31,10 @@
                 <svg class="w-5 h-5 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
                 <span>Live Chat</span>
             </button>
+            <button onclick="showSection('security')" id="btn-security" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all group">
+                <svg class="w-5 h-5 group-hover:text-rose-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span>Security Audit</span>
+            </button>
             <a href="/" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 <span>Back to Home</span>
@@ -233,6 +237,19 @@
                 </div>
             </div>
 
+            <!-- Security Section -->
+            <div id="section-security" class="section-content hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="glass rounded-[2rem] overflow-hidden border-white/5 shadow-2xl">
+                    <div class="p-8 border-b border-white/5 bg-slate-900/50 flex items-center justify-between">
+                        <h3 class="font-bold text-xl text-white">Global Security Audit</h3>
+                        <button onclick="loadAdminLogs()" class="text-xs font-black text-indigo-400 uppercase tracking-widest hover:text-indigo-300 transition-colors">Refresh Logs</button>
+                    </div>
+                    <div id="admin-security-logs" class="divide-y divide-white/5 max-h-[calc(100vh-20rem)] overflow-y-auto">
+                        <div class="p-12 text-center text-slate-500 italic">Select refresh to load global logs...</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
     
@@ -259,6 +276,9 @@
         document.getElementById('btn-chat').className = sectionId === 'chat'
             ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-semibold border border-indigo-500/20 transition-all'
             : 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all';
+        document.getElementById('btn-security').className = sectionId === 'security'
+            ? 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-semibold border border-indigo-500/20 transition-all'
+            : 'w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all';
             
         // Update title/desc
         if (sectionId === 'users') {
@@ -270,9 +290,55 @@
         } else if (sectionId === 'groups') {
             document.getElementById('section-title').textContent = 'Groups Management';
             document.getElementById('section-desc').textContent = 'Manage worker groups and panel assignments';
-        } else {
+        } else if (sectionId === 'chat') {
             document.getElementById('section-title').textContent = 'Live Chat Area';
             document.getElementById('section-desc').textContent = 'Connect with your worker cohorts instantly';
+        } else {
+            document.getElementById('section-title').textContent = 'Security Audit';
+            document.getElementById('section-desc').textContent = 'Global monitor of security events and potential risks';
+            loadAdminLogs();
+        }
+    }
+
+    async function loadAdminLogs() {
+        const container = document.getElementById('admin-security-logs');
+        container.innerHTML = '<div class="p-12 text-center text-slate-500 italic">Fetching global logs...</div>';
+        
+        try {
+            const res = await fetch('/admin/security/logs');
+            const data = await res.json();
+            
+            if (data.logs.length === 0) {
+                container.innerHTML = '<div class="p-12 text-center text-slate-500 italic">No security events found in the database.</div>';
+                return;
+            }
+
+            container.innerHTML = data.logs.map(log => {
+                const color = log.level === 'high' ? 'rose' : (log.level === 'middle' ? 'amber' : 'emerald');
+                const levelBg = log.level === 'high' ? 'bg-rose-500/10 text-rose-400 border-rose-500/10' : (log.level === 'middle' ? 'bg-amber-500/10 text-amber-400 border-amber-500/10' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/10');
+                
+                return `
+                    <div class="p-6 hover:bg-white/[0.02] transition-all flex items-start space-x-6">
+                        <div class="w-1.5 h-10 rounded-full bg-${color}-500 shrink-0"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-3">
+                                    <span class="font-bold text-white text-md">${log.message}</span>
+                                    <span class="px-2 py-0.5 border rounded text-[8px] font-black uppercase tracking-widest ${levelBg}">${log.level}</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-500">${new Date(log.createdAt).toLocaleString()}</span>
+                            </div>
+                            <div class="flex items-center space-x-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                                <span class="text-indigo-400">USER: ${log.userId}</span>
+                                <span>TYPE: ${log.type}</span>
+                            </div>
+                            ${log.metadata ? `<pre class="mt-4 bg-black/40 p-4 rounded-2xl border border-white/5 text-[10px] text-slate-400 overflow-x-auto">${JSON.stringify(log.metadata, null, 2)}</pre>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            container.innerHTML = '<div class="p-12 text-center text-rose-500 font-bold">Failed to load security audit logs.</div>';
         }
     }
 

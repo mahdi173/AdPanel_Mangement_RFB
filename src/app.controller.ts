@@ -80,4 +80,17 @@ export class AppController {
   getLogin() {
     return { title: 'Login' };
   }
+
+  @Get('security')
+  @UseGuards(OptionalJwtAuthGuard)
+  @Render('security')
+  async getSecurity(@Req() req: any) {
+    if (!req.user) {
+      return { redirect: '/login' }; // Simple redirect fallback
+    }
+    return {
+      title: 'Security',
+      user: req.user,
+    };
+  }
 }

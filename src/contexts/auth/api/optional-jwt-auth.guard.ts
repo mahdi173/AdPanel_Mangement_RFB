@@ -24,7 +24,12 @@ export class OptionalJwtAuthGuard implements CanActivate {
         email: payload.email,
         permissions: payload.permissions,
         token: {
+          id: payload.id,
           sub: payload.sub,
+          familyId: payload.familyId,
+          parentId: payload.parentId,
+          isRevoked: payload.isRevoked,
+          version: payload.version,
           typ: payload.typ,
           iat: payload.iat,
           exp: payload.exp,

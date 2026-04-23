@@ -6,7 +6,7 @@ export type AuthenticatedUser = {
   id: string;
   email: string;
   permissions?: string;
-  token?: Pick<TokenPayload, 'sub' | 'typ' | 'iat' | 'exp'>;
+  token?: Pick<TokenPayload, 'id' | 'sub' | 'familyId' | 'parentId' | 'isRevoked' | 'version' | 'typ' | 'iat' | 'exp'>;
 };
 
 export type RequestWithUser = Request & { user?: AuthenticatedUser };

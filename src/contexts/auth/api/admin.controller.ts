@@ -8,6 +8,8 @@ import { PANEL_REPOSITORY } from '../../panels/app/ports/panel.repository';
 import type { PanelRepository } from '../../panels/app/ports/panel.repository';
 import { GROUP_REPOSITORY } from '../../groups/app/ports/group.repository';
 import type { GroupRepository } from '../../groups/app/ports/group.repository';
+import { SECURITY_EVENT_REPOSITORY } from '../app/ports/security-event.repository';
+import type { SecurityEventRepository } from '../app/ports/security-event.repository';
 import { requireRequestUser } from './request-user';
 
 @Controller('admin')
@@ -20,8 +22,16 @@ export class AdminController {
     @Inject(PANEL_REPOSITORY)
     private readonly panelRepository: PanelRepository,
     @Inject(GROUP_REPOSITORY)
-    private readonly groupRepository: GroupRepository
+    private readonly groupRepository: GroupRepository,
+    @Inject(SECURITY_EVENT_REPOSITORY)
+    private readonly securityEventRepository: SecurityEventRepository
   ) {}
+
+  @Get('security/logs')
+  async getSecurityLogs() {
+    const logs = await this.securityEventRepository.listAll(300);
+    return { logs };
+  }
 
   @Get()
   @Render('admin/dashboard')

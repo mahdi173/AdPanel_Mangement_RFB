@@ -1,0 +1,232 @@
+<head>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .section-tab.active {
+            background: rgba(99, 102, 241, 0.1);
+            color: #818cf8;
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+    </style>
+</head>
+<div class="min-h-screen flex flex-col bg-[#0f172a] text-slate-200">
+    <!-- Navbar -->
+    <nav class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-white/5">
+        <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <span class="font-bold text-xl text-white">R</span>
+            </div>
+            <span class="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">RF Security</span>
+        </div>
+
+        <div class="flex items-center space-x-6 text-sm font-medium">
+            <a href="/" class="text-slate-400 hover:text-white transition-colors">Home</a>
+            {{#if (eq user.permissions '11111')}}
+                <a href="/admin" class="text-amber-400 hover:text-amber-300 transition-colors">Admin</a>
+            {{/if}}
+            <div class="h-6 w-px bg-slate-800 mx-2"></div>
+            <div class="flex items-center space-x-4">
+                <span class="text-slate-300">{{user.email}}</span>
+                <a href="/auth/logout" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg border border-slate-700 transition-all">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full py-12 px-4">
+        <div class="mb-12">
+            <h1 class="text-4xl font-black tracking-tight text-white mb-2">Security & Privacy</h1>
+            <p class="text-slate-400 italic">Monitor your account activity and manage active sessions</p>
+        </div>
+
+        <!-- Dashboard Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="lg:col-span-1 space-y-2">
+                <button onclick="showSection('connections')" id="tab-connections" class="section-tab active w-full flex items-center space-x-3 px-5 py-4 rounded-2xl border border-transparent transition-all font-bold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <span>Active Sessions</span>
+                </button>
+                <button onclick="showSection('logs')" id="tab-logs" class="section-tab w-full flex items-center space-x-3 px-5 py-4 rounded-2xl border border-transparent transition-all font-bold text-slate-400 hover:bg-white/5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Activity Logs</span>
+                </button>
+                <button onclick="logoutAll()" class="w-full flex items-center space-x-3 px-5 py-4 rounded-2xl text-rose-400 hover:bg-rose-500/10 transition-all font-bold mt-8 border border-rose-500/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span>Logout All Devices</span>
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="lg:col-span-3 space-y-8">
+                <!-- Connections Section -->
+                <div id="section-connections" class="section-content animate-in fade-in slide-in-from-right-4 duration-500">
+                    <div class="glass rounded-3xl overflow-hidden">
+                        <div class="p-6 border-b border-white/5 flex items-center justify-between bg-white/5">
+                            <h3 class="font-bold text-lg">Current Connections</h3>
+                            <span id="session-count" class="text-xs font-mono bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded">0 ACTIVE</span>
+                        </div>
+                        <div id="sessions-list" class="divide-y divide-white/5">
+                            <div class="p-12 text-center text-slate-500 italic">Loading sessions...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logs Section -->
+                <div id="section-logs" class="section-content hidden animate-in fade-in slide-in-from-right-4 duration-500">
+                    <div class="glass rounded-3xl overflow-hidden">
+                        <div class="p-6 border-b border-white/5 bg-white/5 flex items-center justify-between">
+                            <h3 class="font-bold text-lg">Recent Security Events</h3>
+                            <button onclick="loadLogs()" class="text-xs text-indigo-400 hover:text-indigo-300 font-bold uppercase tracking-widest">Refresh</button>
+                        </div>
+                        <div id="logs-list" class="divide-y divide-white/5">
+                            <div class="p-12 text-center text-slate-500 italic">Loading logs...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-[200] space-y-4"></div>
+</div>
+
+<script>
+    function showSection(sectionId) {
+        document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+        document.getElementById('section-' + sectionId).classList.remove('hidden');
+        
+        document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + sectionId).classList.add('active');
+
+        if (sectionId === 'connections') loadSessions();
+        if (sectionId === 'logs') loadLogs();
+    }
+
+    async function loadSessions() {
+        try {
+            const res = await fetch('/auth/security/connections');
+            const data = await res.json();
+            const list = document.getElementById('sessions-list');
+            const count = document.getElementById('session-count');
+            
+            const activeSessions = data.sessions.filter(s => !s.isRevoked);
+            count.textContent = `${activeSessions.length} ACTIVE`;
+
+            if (activeSessions.length === 0) {
+                list.innerHTML = '<div class="p-12 text-center text-slate-500 italic">No active sessions found.</div>';
+                return;
+            }
+
+            list.innerHTML = activeSessions.map(s => `
+                <div class="p-6 flex items-center justify-between group hover:bg-white/[0.02] transition-all">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/10">
+                            <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white flex items-center space-x-2">
+                                <span>${s.userAgent || 'Unknown Device'}</span>
+                                ${s.id === '{{user.token.id}}' ? '<span class="text-[8px] bg-emerald-500 text-white px-1.5 py-0.5 rounded uppercase font-black tracking-tighter">Current</span>' : ''}
+                            </div>
+                            <div class="text-xs text-slate-500 font-mono mt-1">${s.ipAddress || '0.0.0.0'} • Last active ${new Date(s.createdAt).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    ${s.id !== '{{user.token.id}}' ? `
+                        <button onclick="revokeSession('${s.id}')" class="opacity-0 group-hover:opacity-100 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[10px] font-black uppercase px-4 py-2 rounded-xl transition-all border border-rose-500/10">
+                            Revoke
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function loadLogs() {
+        try {
+            const res = await fetch('/auth/security/logs');
+            const data = await res.json();
+            const list = document.getElementById('logs-list');
+
+            if (data.logs.length === 0) {
+                list.innerHTML = '<div class="p-12 text-center text-slate-500 italic">No security events recorded.</div>';
+                return;
+            }
+
+            list.innerHTML = data.logs.map(log => {
+                const color = log.level === 'high' ? 'rose' : (log.level === 'middle' ? 'amber' : 'emerald');
+                return `
+                    <div class="p-6 flex items-start space-x-4">
+                        <div class="w-2 h-2 rounded-full bg-${color}-500 mt-2 shadow-[0_0_8px_rgba(var(--${color}-500-rgb),0.5)] shrink-0"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-bold text-white text-sm">${log.message}</span>
+                                <span class="text-[10px] font-mono text-slate-600">${new Date(log.createdAt).toLocaleString()}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 uppercase tracking-widest font-bold">${log.type} • ${log.level} risk</div>
+                            ${log.metadata ? `<pre class="mt-3 bg-black/20 p-3 rounded-xl border border-white/5 text-[10px] text-slate-400 overflow-x-auto">${JSON.stringify(log.metadata, null, 2)}</pre>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function revokeSession(tokenId) {
+        if (!confirm('Are you sure you want to revoke this session?')) return;
+        try {
+            const res = await fetch('/auth/logout/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refresh_token: tokenId })
+            });
+            if (res.ok) {
+                showToast('Session revoked successfully', 'success');
+                loadSessions();
+            }
+        } catch (e) {
+            showToast('Failed to revoke session', 'error');
+        }
+    }
+
+    async function logoutAll() {
+        if (!confirm('Are you sure you want to logout from all devices? This will invalidate your current session too.')) return;
+        try {
+            const res = await fetch('/auth/logout/all', { method: 'POST' });
+            if (res.ok) {
+                window.location.href = '/login';
+            }
+        } catch (e) {
+            showToast('Failed to logout all devices', 'error');
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        const color = type === 'success' ? 'bg-emerald-500' : 'bg-indigo-600';
+        toast.className = `glass p-4 rounded-xl border-white/10 shadow-2xl flex items-center space-x-3 transform transition-all duration-500 translate-x-[120%]`;
+        toast.innerHTML = `
+            <div class="w-8 h-8 ${color} rounded-lg flex items-center justify-center shrink-0 shadow-lg">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <p class="text-sm font-bold text-slate-200">${message}</p>
+        `;
+        document.getElementById('toastContainer').appendChild(toast);
+        setTimeout(() => toast.classList.remove('translate-x-[120%]'), 10);
+        setTimeout(() => {
+            toast.classList.add('translate-x-[120%]');
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+    }
+
+    // Initialize
+    loadSessions();
+</script>

@@ -16,6 +16,10 @@ import { NotificationsModule } from './core/notifications/notifications.module';
 import { GroupEntity } from './contexts/groups/infra/typeorm/group.persistence-entity';
 import { MessageEntity } from './contexts/groups/infra/typeorm/message.persistence-entity';
 import { StripeModule } from './contexts/payment/infra/payment.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import KeyvRedis from '@keyv/redis';
+import { Keyv } from 'keyv';
+
 
 @Module({
   imports: [
@@ -38,7 +42,19 @@ import { StripeModule } from './contexts/payment/infra/payment.module';
     NotificationsModule,
     TypeOrmModule.forFeature([UserEntity, PanelEntity, GroupEntity, MessageEntity]),
     StripeModule.forRootAsync(),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => ({
+        stores: [
+          new Keyv({
+            store: new KeyvRedis(`redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || '6379'}`),
+            ttl: parseInt(process.env.REDIS_TTL || '3600') * 1000,
+          }),
+        ],
+      }),
+    }),
   ],
+
   controllers: [AppController],
   providers: [
     AppService,

@@ -24,13 +24,25 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_NAME: rf_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       PORT: 3000
     depends_on:
       - postgres
+      - redis
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     command: npm run start:dev
 
+  redis:
+    image: redis:7-alpine
+    container_name: rf-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+
 volumes:
   postgres_data:
+  redis_data:

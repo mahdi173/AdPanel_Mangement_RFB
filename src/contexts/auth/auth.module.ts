@@ -8,6 +8,9 @@ import { TOKEN_SERVICE } from "./app/ports/token.service";
 import { USER_REPOSITORY } from "./app/ports/user.repository";
 import { PASSWORD_SERVICE } from "./app/ports/password.service";
 import { BcryptPasswordService } from "./infra/bcrypt-password.service";
+import { BLOOM_FILTER_PORT } from "./app/ports/bloom-filter.port";
+import { RedisBloomFilterService } from "./infra/redis-bloom-filter.service";
+import { BloomFilterSyncService } from "./app/services/bloom-filter-sync.service";
 
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserEntity } from "./infra/typeorm/user.persistence-entity";
@@ -41,6 +44,7 @@ import { SecurityEventService } from "./app/services/security-event.service";
     RefreshTokenUseCase,
     RefreshTokenRiskService,
     SecurityEventService,
+    BloomFilterSyncService,
     JwtAuthGuard,
     OptionalJwtAuthGuard,
     RolesGuard,
@@ -63,6 +67,10 @@ import { SecurityEventService } from "./app/services/security-event.service";
     {
       provide: SECURITY_EVENT_REPOSITORY,
       useClass: TypeOrmSecurityEventRepository,
+    },
+    {
+      provide: BLOOM_FILTER_PORT,
+      useClass: RedisBloomFilterService,
     },
   ],
   exports: [
